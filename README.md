@@ -1,21 +1,16 @@
-THE THINGS I LEARNED HERE ARE :
--------------------------------
--> DIFFRENT KIND OF FILES FOR COORDINATES
--
--> TYPE OF FLATTENING DONE TO GET THE RIGHT AREA OF THE PLACE USING COORDINATES 
---
--> THEIR IS POSTGIS EXTENTION IN POSTGRESQL TO SAVE THE GIS DATAS
----
--> CALCULATING THE AREA OF COORDINATED BY TRANSFORMING THE COORDINATE DATA USING "ALBERS EQUAL AREA CONICS"
-----
--> LEARNED HOW AND WHERE DOES THESE COORDINATES DATA IS USED 
------------------
-MY STUFF--
-->IN ADD-ON WITH THIS I HAD ADDED A GEN AI MODEL LIKE A RAPPER SO THAT WE CAN GET ANY KIND OF INTERPREDATION OF THE DATA AND MAKE US EASILY FIND EACH AND EVERYTHING ABOUT THE SPECIFIC PLACE 
--------
-->YOU DONT NEED TO SPECIFICALLY DATA FOR CHATBOT..JUST ONE UPLOAD..YOU GET EACH AND EVERY DATA ABOUT THE PLACE 
---------
-->AS THEY ASK FOR A BACKEND INTERN I DONT WORK MORE ON THE FRONTEND WHICH WOULD BE A SIMPLE U/I
+## What I Learned
+
+- Learned about different geospatial file formats used to store coordinate data.
+- Understood how map projections transform coordinates and why they are important for calculating area and distance accurately.
+- Learned about the PostGIS extension in PostgreSQL and its role in storing and managing geospatial data.
+- Explored how to calculate the area of geographical features using projections such as Albers Equal Area Conic and other suitable projected coordinate systems.
+- Understood how geospatial data is used in real-world applications such as mapping, location analysis, and geographic information systems.
+
+## Additional Contributions
+
+- Integrated a Generative AI model to help users interpret geospatial data and get meaningful insights by asking questions in natural language.
+- Designed the workflow so that users can upload a geospatial file once and ask questions about the available data without manually providing the same information for every query.
+- Focused primarily on backend development, including file processing, API development, database integration, coordinate transformation, and AI integration, while keeping the frontend simple and user-friendly.
 
 # 🌍 AEREO GIS & AI Intelligence Platform
 
