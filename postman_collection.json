@@ -1,0 +1,192 @@
+{
+	"info": {
+		"_postman_id": "aereo-geospatial-api-collection",
+		"name": "AEREO Geospatial & AI Chatbot API Collection",
+		"description": "Postman Collection to test all API endpoints of the AEREO Geospatial File Measurement & AI Chatbot System.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "file_id",
+			"value": "PASTE_YOUR_UPLOADED_FILE_ID_HERE",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. System Health & Root",
+			"item": [
+				{
+					"name": "Get Root API Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Returns the status message of the AEREO API backend."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Health check endpoint."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. File Upload & Processing",
+			"item": [
+				{
+					"name": "Upload Geospatial File (.kml or .zip)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set('file_id', jsonData.id);",
+									"    console.log('Saved file_id:', jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "uploaded_file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/files/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"files",
+								""
+							]
+						},
+						"description": "Upload a .kml or Shapefile .zip dataset to AEREO API."
+					},
+					"response": []
+				},
+				{
+					"name": "Get File Processing Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/files/{{file_id}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"files",
+								"{{file_id}}",
+								""
+							]
+						},
+						"description": "Fetches current processing status (PROCESSING, COMPLETED, FAILED)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Feature Measurements",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/files/{{file_id}}/measurements/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"files",
+								"{{file_id}}",
+								"measurements",
+								""
+							]
+						},
+						"description": "Retrieves calculated area, perimeter, length, unit, and geometry types for all parsed features."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. AI Chatbot",
+			"item": [
+				{
+					"name": "Ask AEREO AI (Terrain & Measurements)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"can you explain the terrain of the place ?\",\n  \"session_id\": \"postman_session_01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/files/{{file_id}}/chat/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"files",
+								"{{file_id}}",
+								"chat",
+								""
+							]
+						},
+						"description": "Queries AEREO AI assistant for conversational analysis of dataset measurements, reverse-geocoded location, and web-searched terrain info."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

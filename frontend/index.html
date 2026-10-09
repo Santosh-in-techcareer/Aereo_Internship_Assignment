@@ -509,7 +509,7 @@
 
         <div class="chat-history" id="chatHistory">
             <div class="chat-msg assistant">
-                Hello! I am <strong>GeoSmart AI</strong>. I have loaded and analyzed your dataset's spatial measurements. Ask me any question about your geometries, areas, perimeters, lengths, or CRS!
+                Hello! I am <strong>AEREO AI</strong>. I have loaded and analyzed your dataset's spatial measurements. Ask me any question about your geometries, areas, perimeters, lengths, or terrain!
             </div>
         </div>
 
@@ -517,7 +517,7 @@
             <input
                 type="text"
                 id="chatInput"
-                placeholder="Ask GeoSmart AI about your dataset..."
+                placeholder="Ask AEREO AI about your dataset or terrain..."
                 onkeypress="handleChatKeyPress(event)"
             />
             <button id="chatSendBtn" onclick="sendChatMessage()">Send</button>
@@ -875,7 +875,7 @@ async function sendChatMessage() {
     const typingMsg = document.createElement("div");
     typingMsg.className = "chat-msg typing";
     typingMsg.id = "typingIndicator";
-    typingMsg.textContent = "GeoSmart AI is analyzing dataset and drafting response...";
+    typingMsg.textContent = "AEREO AI is analyzing dataset and drafting response...";
     history.appendChild(typingMsg);
     history.scrollTop = history.scrollHeight;
 

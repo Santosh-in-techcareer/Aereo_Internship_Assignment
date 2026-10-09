@@ -1,116 +1,23 @@
-# 🌍 GeoSmart GIS & AI Intelligence Platform
+# 🌍 AEREO GIS & AI Intelligence Platform
 
-An end-to-end geospatial data processing system and AI-powered assistant for uploading **KML** and **Shapefile ZIP** datasets, calculating high-accuracy spatial measurements (Area, Perimeter, Length), and chatting with an AI Agent (**GeoSmart AI**) enriched with live **reverse-geocoding** and **DuckDuckGo web terrain search**.
-
----
-
-## 🌟 Key Features
-
-- **📁 Multi-Format Geospatial Uploads:** Accepts `.kml` vector files and `.zip` archives containing ESRI Shapefiles (`.shp`, `.shx`, `.dbf`, `.prj`).
-- **⚡ Asynchronous Background Ingestion:** Non-blocking background worker processes geospatial files using `GeoPandas`, `PyOGRIO`, and `Shapely`.
-- **🌐 Automatic CRS & UTM Projection:** Detects source Coordinate Reference Systems (e.g. WGS84 `EPSG:4326`) and projects geographic data into localized UTM zones (`estimate_utm_crs()`) for accurate metric calculations ($m^2$ and $m$).
-- **📐 Automated Spatial Measurements:** Computes:
-  - **Polygon & MultiPolygon:** Area ($m^2$) and Perimeter ($m$).
-  - **LineString & MultiLineString:** Length ($m$).
-  - **Point & MultiPoint:** Spatial coordinate extraction and property parsing.
-- **🤖 GeoSmart AI Assistant (LangChain + Groq):** Integrated LLM agent (`qwen/qwen3.8-27b`) that analyzes dataset measurements, reverse geocodes feature coordinates via OpenStreetMap Nominatim, and performs web searches to answer natural questions about real-world terrain, geography, topography, and environment.
-- **💻 Modern Web Dashboard:** A responsive, glassmorphic UI (`frontend/index.html`) featuring real-time file upload status, metadata cards, a feature measurement data table, and an AI chat thread with **Edit Query** and **Copy Response** controls.
-- **📑 Complete OpenAPI & Postman Support:** Includes automatic Swagger UI (`/docs`), ReDoc (`/redoc`), and a ready-to-import Postman Collection (`postman_collection.json`).
+An end-to-end geospatial data processing system and AI-powered assistant built for **AEREO**, supporting **KML** and **Shapefile ZIP** datasets, high-accuracy metric spatial calculations (Area, Perimeter, Length), and an integrated AI Agent (**AEREO AI**) enriched with live **reverse-geocoding** and **DuckDuckGo web terrain search**.
 
 ---
 
-## 🛠️ Technology Stack
+## Setup
 
-| Layer | Technology |
-|---|---|
-| **Backend Framework** | [FastAPI](https://fastapi.tiangolo.com/) + [Uvicorn](https://www.uvicorn.org/) |
-| **Geospatial Engines** | [GeoPandas](https://geopandas.org/), [PyOGRIO](https://pyogrio.readthedocs.io/), [Shapely](https://shapely.readthedocs.io/), [PyPROJ](https://pyproj4.github.io/) |
-| **Database & ORM** | [PostgreSQL](https://www.postgresql.org/) + [SQLAlchemy](https://www.sqlalchemy.org/) + [Psycopg 3](https://www.psycopg.org/psycopg3/) |
-| **AI / LLM Orchestration** | [LangChain](https://www.langchain.com/) + [LangChain-Groq](https://python.langchain.com/docs/integrations/chat/groq/) |
-| **Geocoding & Web Search** | OpenStreetMap Nominatim API + DuckDuckGo Search (`duckduckgo-search`) |
-| **Package Manager** | [`uv`](https://github.com/astral-sh/uv) (Extremely fast Python package manager) |
-| **Frontend** | Vanilla HTML5, Modern CSS3 (Glassmorphism), JavaScript (Fetch API) |
+Follow these steps to set up and run the application locally on your machine.
 
----
+### Prerequisites
+- **Python 3.10+** (Python 3.14 recommended)
+- **PostgreSQL Database** running locally or remotely
+- **`uv`** (Ultra-fast Python package manager):
+  ```bash
+  pip install uv
+  ```
 
-## 📁 Repository Structure
-
-```
-AEREO/
-├── app/                        # Main FastAPI Backend Application
-│   ├── main.py                 # FastAPI entrypoint, app mounting, and schema auto-migrations
-│   ├── database.py             # PostgreSQL SQLAlchemy engine & SessionLocal configuration
-│   ├── models.py               # Database models (File & Feature tables)
-│   ├── schemas.py              # Pydantic request/response schemas
-│   ├── routes/
-│   │   ├── files.py            # File upload, status, and measurement endpoints
-│   │   └── chat.py             # GeoSmart AI Chatbot endpoint
-│   └── services/
-│       ├── file_process.py     # Background worker for KML/ZIP extraction & GIS parsing
-│       ├── crs.py              # Coordinate Reference System & UTM projection logic
-│       └── measurement.py      # Spatial measurement calculator (Area, Perimeter, Length)
-│
-├── Chat_bot/                   # AI Intelligence & Search Module
-│   ├── main.py                 # Standalone Chatbot FastAPI service
-│   ├── geospatial_chatbot.py   # LangChain chain & prompt template configuration
-│   └── search_service.py       # Centroid calculation, Nominatim reverse geocoding & web search
-│
-├── frontend/
-│   └── index.html              # Glassmorphic web frontend UI dashboard
-│
-├── postman_collection.json      # Complete Postman Collection (v2.1.0)
-├── POSTMAN_API_GUIDE.md        # Comprehensive Postman testing guide
-├── pyproject.toml              # Project dependencies and configuration
-└── .env                        # Environment configuration file
-```
-
----
-
-## 🗄️ Database Schema
-
-The system uses PostgreSQL to persist file metadata and spatial features:
-
-```mermaid
-erDiagram
-    FILES ||--o{ FEATURES : contains
-    FILES {
-        string id PK "UUID string"
-        string filename "Original file name"
-        string file_type "KML or SHAPEFILE_ZIP"
-        int feature_count "Total feature count"
-        string crs "Source CRS string"
-        string projected_crs "Target projected UTM CRS string"
-        string status "PROCESSING | COMPLETED | FAILED"
-        text error_message "Failure explanation if any"
-        datetime created_at "UTC timestamp"
-    }
-    FEATURES {
-        int id PK "Autoincrement ID"
-        string file_id FK "References FILES(id)"
-        int feature_index "Index of feature (1-based)"
-        string geometry_type "Polygon, LineString, Point, etc."
-        text geometry_wkt "WKT Geometry string"
-        string crs "Source CRS"
-        json properties "JSON feature properties/attributes"
-        float area "Calculated area in m²"
-        float perimeter "Calculated perimeter in m"
-        float length "Calculated line length in m"
-        string measurement_unit "m² / m or m"
-        string measurement_status "SUPPORTED | NO_MEASUREMENT | UNSUPPORTED"
-    }
-```
-
----
-
-## ⚡ Quickstart & Setup Guide
-
-### 1. Prerequisites
-- Python 3.14+ (or Python 3.10+)
-- PostgreSQL Database running locally or remotely
-- [`uv`](https://github.com/astral-sh/uv) package manager installed (`pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`)
-
-### 2. Environment Configuration (`.env`)
-Create a `.env` file in the project root directory:
+### 1. Environment Configuration (`.env`)
+Create a `.env` file in the root directory of the project:
 
 ```env
 DATABASE_URL=postgresql+psycopg://postgres:your_password@localhost:5432/geospatial_api
@@ -119,55 +26,297 @@ GROQ_MODEL=qwen/qwen3.8-27b
 INTERNAL_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-### 3. Install Dependencies
+### 2. Install Project Dependencies
+Run `uv` to automatically create a virtual environment and install all dependencies:
+
 ```bash
 uv sync
 ```
 
-### 4. Launch the Server
-Start the unified FastAPI server:
+### 3. Run the Application
+Launch the unified FastAPI application using Uvicorn:
 
 ```bash
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-Once running:
-- **Web Interface:** [http://127.0.0.1:8000/frontend/](http://127.0.0.1:8000/frontend/)
-- **Swagger Interactive API Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **ReDoc API Spec:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+Once started:
+- 🌐 **Web Dashboard:** [http://127.0.0.1:8000/frontend/](http://127.0.0.1:8000/frontend/)
+- 📑 **Swagger Interactive API Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- 📖 **ReDoc API Spec:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
 ---
 
-## 🔌 API Endpoint Reference
+## API
 
-| Endpoint | Method | Description | Request / Body | Response |
-|---|---|---|---|---|
-| `/` | `GET` | System root status | None | `{"message": "...", "status": "running"}` |
-| `/health` | `GET` | Health check endpoint | None | `{"status": "healthy"}` |
-| `/api/files/` | `POST` | Upload `.kml` or `.zip` dataset | `form-data`: `uploaded_file` | `FileResponse` object with `id` and `status` |
-| `/api/files/{file_id}/` | `GET` | Check processing status | Path `file_id` (UUID) | Updated `FileResponse` (`COMPLETED`, `FAILED`) |
-| `/api/files/{file_id}/measurements/` | `GET` | Retrieve calculated spatial measurements | Path `file_id` (UUID) | Array of feature measurements (`area`, `perimeter`, `length`, `unit`) |
-| `/api/files/{file_id}/chat/` | `POST` | Ask GeoSmart AI about dataset & terrain | Path `file_id`, JSON body: `{"question": "...", "session_id": "..."}` | Conversational AI answer (`answer`) |
+Below is the complete documentation for all available endpoints, including example HTTP requests and response payloads.
 
 ---
 
-## 🧪 Testing with Postman
+### 1. Root Status
+- **HTTP Method:** `GET`
+- **Endpoint:** `/`
+- **Description:** Verifies that the API backend is online and running.
 
-A complete, pre-configured Postman Collection is provided in **[`postman_collection.json`](file:///Users/santoshr/Documents/AEREO/postman_collection.json)**.
+#### Example Request
+```http
+GET / HTTP/1.1
+Host: 127.0.0.1:8000
+```
 
-### How to Test in Postman:
-1. Open **Postman** and click **Import**.
-2. Select **[`postman_collection.json`](file:///Users/santoshr/Documents/AEREO/postman_collection.json)**.
-3. Execute requests in sequence:
-   1. `POST /api/files/` (Upload a file)
-   2. `GET /api/files/{file_id}/` (Verify completion)
-   3. `GET /api/files/{file_id}/measurements/` (Inspect spatial metrics)
-   4. `POST /api/files/{file_id}/chat/` (Ask questions like *"Can you explain the terrain of the place?"*)
-
-Detailed step-by-step testing instructions are available in **[`POSTMAN_API_GUIDE.md`](file:///Users/santoshr/Documents/AEREO/POSTMAN_API_GUIDE.md)**.
+#### Example Response (`200 OK`)
+```json
+{
+  "message": "Geospatial File Measurement API",
+  "status": "running"
+}
+```
 
 ---
 
-## 📄 License & Attribution
+### 2. Health Check
+- **HTTP Method:** `GET`
+- **Endpoint:** `/health`
+- **Description:** Returns the health status of the application.
 
-Developed as a high-performance **Geospatial Measurement Engine & AI Platform**. Powered by FastAPI, GeoPandas, LangChain, OpenStreetMap, and Groq.
+#### Example Request
+```http
+GET /health HTTP/1.1
+Host: 127.0.0.1:8000
+```
+
+#### Example Response (`200 OK`)
+```json
+{
+  "status": "healthy"
+}
+```
+
+---
+
+### 3. Upload Geospatial File
+- **HTTP Method:** `POST`
+- **Endpoint:** `/api/files/`
+- **Description:** Uploads a `.kml` file or a Shapefile `.zip` archive for background processing.
+
+#### Example Request
+```http
+POST /api/files/ HTTP/1.1
+Host: 127.0.0.1:8000
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="uploaded_file"; filename="sample_polygon.kml"
+Content-Type: application/vnd.google-earth.kml+xml
+
+<kml content...>
+------WebKitFormBoundary--
+```
+
+#### Example Response (`200 OK`)
+```json
+{
+  "id": "42a73b46-2f59-444b-84c0-13fe54253be0",
+  "filename": "sample_polygon.kml",
+  "file_type": "KML",
+  "feature_count": 1,
+  "crs": null,
+  "projected_crs": null,
+  "status": "PROCESSING",
+  "error_message": null,
+  "created_at": "2026-10-09T18:50:00.123456"
+}
+```
+
+---
+
+### 4. Get File Processing Status
+- **HTTP Method:** `GET`
+- **Endpoint:** `/api/files/{file_id}/`
+- **Description:** Fetches the current processing status (`PROCESSING`, `COMPLETED`, or `FAILED`) and metadata for a uploaded file.
+
+#### Example Request
+```http
+GET /api/files/42a73b46-2f59-444b-84c0-13fe54253be0/ HTTP/1.1
+Host: 127.0.0.1:8000
+```
+
+#### Example Response (`200 OK`)
+```json
+{
+  "id": "42a73b46-2f59-444b-84c0-13fe54253be0",
+  "filename": "sample_polygon.kml",
+  "file_type": "KML",
+  "feature_count": 1,
+  "crs": "EPSG:4326",
+  "projected_crs": "EPSG:32611",
+  "status": "COMPLETED",
+  "error_message": null,
+  "created_at": "2026-10-09T18:50:00.123456"
+}
+```
+
+---
+
+### 5. Get Feature Measurements
+- **HTTP Method:** `GET`
+- **Endpoint:** `/api/files/{file_id}/measurements/`
+- **Description:** Returns calculated spatial measurements (Area in $m^2$, Perimeter in $m$, Length in $m$) for all parsed geometries in the file.
+
+#### Example Request
+```http
+GET /api/files/42a73b46-2f59-444b-84c0-13fe54253be0/measurements/ HTTP/1.1
+Host: 127.0.0.1:8000
+```
+
+#### Example Response (`200 OK`)
+```json
+{
+  "file_id": "42a73b46-2f59-444b-84c0-13fe54253be0",
+  "filename": "sample_polygon.kml",
+  "measurements": [
+    {
+      "feature_id": 1,
+      "feature_index": 1,
+      "geometry_type": "Polygon",
+      "area": 1500.5,
+      "perimeter": 185.3,
+      "length": null,
+      "unit": "m² / m",
+      "status": "SUPPORTED"
+    }
+  ]
+}
+```
+
+---
+
+### 6. Ask AEREO AI Chatbot
+- **HTTP Method:** `POST`
+- **Endpoint:** `/api/files/{file_id}/chat/`
+- **Description:** Sends questions to the AEREO AI chatbot, which leverages feature measurements, reverse geocoding, and web terrain search to answer questions.
+
+#### Example Request
+```http
+POST /api/files/42a73b46-2f59-444b-84c0-13fe54253be0/chat/ HTTP/1.1
+Host: 127.0.0.1:8000
+Content-Type: application/json
+
+{
+  "question": "can you explain the terrain of the place ?",
+  "session_id": "session_demo_01"
+}
+```
+
+#### Example Response (`200 OK`)
+```json
+{
+  "file_id": "42a73b46-2f59-444b-84c0-13fe54253be0",
+  "session_id": "session_demo_01",
+  "question": "can you explain the terrain of the place ?",
+  "answer": "The dataset you provided is located in Coconino County, Arizona, near the Grand Canyon South Rim. In terms of terrain, this area is part of a high desert plateau characterized by high elevation (~2,100 meters above sea level), ancient sedimentary rock formations, and steep canyon washes..."
+}
+```
+
+---
+
+## Architecture
+
+### 1. Application Structure
+
+The application is structured into decoupled modules separating backend routes, GIS services, database models, AI agents, and frontend assets:
+
+```
+AEREO/
+├── app/                        # FastAPI Core Backend
+│   ├── main.py                 # Application initialization & router inclusion
+│   ├── database.py             # SQLAlchemy engine & session management
+│   ├── models.py               # ORM Models (File, Feature)
+│   ├── schemas.py              # Pydantic schemas
+│   ├── routes/
+│   │   ├── files.py            # File upload & measurement endpoints
+│   │   └── chat.py             # AI Chatbot endpoint
+│   └── services/
+│       ├── file_process.py     # Ingestion & worker logic
+│       ├── crs.py              # Coordinate Reference System transformation
+│       └── measurement.py      # Spatial measurement engine
+├── Chat_bot/                   # AI Intelligence & Search Services
+│   ├── geospatial_chatbot.py   # LangChain LLM chain setup
+│   └── search_service.py       # Centroid calculation, Nominatim geocoding & DDG web search
+├── frontend/
+│   └── index.html              # Glassmorphic UI Dashboard
+├── postman_collection.json      # Postman testing collection
+└── POSTMAN_API_GUIDE.md        # Step-by-step Postman testing guide
+```
+
+---
+
+### 2. File-Processing Flow
+
+```
+[User Upload (.kml / .zip)]
+         │
+         ▼
+[POST /api/files/] ──► Create DB File record (status="PROCESSING")
+         │
+         ▼ (FastAPI BackgroundTasks)
+[process_geospatial_file()]
+         │
+         ├── 1. Extract .zip (if Shapefile) or parse .kml
+         ├── 2. Read with GeoPandas (pyogrio engine)
+         ├── 3. Validate Geometries & inspect CRS
+         ├── 4. Transform to Projected UTM CRS (via crs.py)
+         ├── 5. Loop features & compute spatial measurements
+         └── 6. Save Features to DB & update status="COMPLETED"
+```
+
+1. **Upload Request:** The endpoint receives a `.kml` or `.zip` file, creates a record in the `files` database table with status `PROCESSING`, and returns the file ID immediately.
+2. **Background Dispatch:** `BackgroundTasks` delegates file extraction and processing to an async background task.
+3. **Extraction & Reading:** Shapefiles in ZIP archives are extracted to a temporary directory; KMLs are read directly using `GeoPandas` with `pyogrio`.
+4. **Persistence:** Parsed attributes, geometry WKTs, and calculated measurements are saved into the `features` database table, and file status is updated to `COMPLETED`.
+
+---
+
+### 3. Measurement Calculation Flow
+
+Spatial calculations depend on geometry type:
+
+1. **Polygons & MultiPolygons:**
+   - **Area:** Calculated on projected geometry in square metres ($m^2$).
+   - **Perimeter:** Calculated via boundary length on projected geometry in metres ($m$).
+2. **LineStrings & MultiLineStrings:**
+   - **Length:** Calculated on projected geometry in metres ($m$).
+   - **Area / Perimeter:** Set to `null`.
+3. **Points & MultiPoints:**
+   - Coordinates extracted in WGS84 (`EPSG:4326`). Measurements set to `null` (`NO_MEASUREMENT`).
+
+---
+
+### 4. CRS Handling
+
+Geographic Coordinate Reference Systems (such as WGS84 `EPSG:4326`) use angular units (degrees), which **cannot be directly used to calculate accurate metric area ($m^2$) or length ($m$)**.
+
+To solve this:
+1. **Source CRS Detection:** GeoPandas inspects `gdf.crs`. If no CRS is defined, processing fails with a clear error.
+2. **UTM Projection Estimation:** `gdf.estimate_utm_crs()` dynamically identifies the optimal local **Universal Transverse Mercator (UTM)** zone for the dataset's location.
+3. **Reprojection:** The dataset is reprojected using `gdf.to_crs(projected_crs)`.
+4. **Measurement Computation:** Metric measurements are computed on the reprojected UTM geometries, while original WGS84 geometries are preserved for mapping/display.
+
+---
+
+## Design Decisions
+
+### 1. FastAPI Framework vs. Django/Flask
+- **Decision:** Selected **FastAPI** for high performance, native async execution, built-in background task processing (`BackgroundTasks`), and automatic OpenAPI / Swagger UI generation.
+
+### 2. GeoPandas & PyOGRIO Engine vs. GDAL Shell Commands
+- **Decision:** Used `geopandas` with `pyogrio` for C-level speed when reading OGR vector formats (KML & Shapefile), avoiding fragile subprocess calls to external GDAL binaries.
+
+### 3. Dynamic UTM Reprojection vs. Haversine Approximation
+- **Decision:** Chose `estimate_utm_crs()` over Haversine/geodesic approximations. Reprojecting to a local projected coordinate system provides true Euclidean planar calculations for complex Polygons and MultiPolygons with minimal distortion.
+
+### 4. Unified Backend Router for AI Chatbot vs. Microservices
+- **Decision:** Integrated the AI Chatbot route (`/api/files/{file_id}/chat/`) directly into the main FastAPI backend using APIRouter. This eliminates cross-origin latency, enables direct database feature querying without internal HTTP loopbacks, and simplifies deployment into a single executable app.
+
+### 5. Multi-Source Web Search & Geocoding for Terrain Queries
+- **Decision:** Combined **Shapely centroid extraction**, **OpenStreetMap Nominatim reverse geocoding**, and **DuckDuckGo web search** to answer context questions (e.g. *"Can you explain the terrain of the place?"*). This allows the chatbot to explain real-world topography even when elevation data isn't included in the vector file.
