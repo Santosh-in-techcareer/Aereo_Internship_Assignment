@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Geospatial Measurement API</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 40px auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .upload-area {
+            border: 2px dashed #9ca3af;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #2563eb;
+            background: #f8fbff;
+        }
+
+        .upload-area input {
+            margin-top: 20px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            display: none;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .info-box small {
+            color: #6b7280;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-top: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f3f4f6;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .processing {
+            color: #d97706;
+        }
+
+        /* Chatbot UI Styles */
+        .chatbot-card {
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.06);
+            margin-top: 25px;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .chat-header h2 {
+            font-size: 20px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-badge {
+            font-size: 12px;
+            background: #dcfce7;
+            color: #15803d;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .chat-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .chip {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chip:hover {
+            background: #dbeafe;
+            transform: translateY(-1px);
+        }
+
+        .chat-history {
+            max-height: 350px;
+            min-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .chat-msg.user {
+            align-self: flex-end;
+            background: #2563eb;
+            color: #ffffff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-msg.assistant {
+            align-self: flex-start;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .msg-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .chat-msg.user .msg-actions {
+            justify-content: flex-end;
+        }
+
+        .msg-btn {
+            background: rgba(0, 0, 0, 0.06);
+            border: none;
+            color: inherit;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .chat-msg.user .msg-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .msg-btn:hover {
+            background: rgba(0, 0, 0, 0.12);
+        }
+
+        .chat-msg.user .msg-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .chat-msg.typing {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .chat-input-bar input:focus {
+            border-color: #2563eb;
+        }
+
+        .chat-input-bar button {
+            margin-top: 0;
+        }
+
+        @media (max-width: 700px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Geospatial File Measurement API</h1>
+
+        <p>
+            Upload KML or Shapefile data and calculate spatial measurements.
+        </p>
+
+    </div>
+
+
+    <!-- Upload -->
+
+    <div class="card">
+
+        <h2>Upload Geospatial File</h2>
+
+        <div class="upload-area">
+
+            <p>Select a KML file or Shapefile ZIP</p>
+
+            <input
+                type="file"
+                id="fileInput"
+                accept=".kml,.zip"
+            >
+
+            <br>
+
+            <button
+                id="uploadButton"
+                onclick="uploadFile()"
+            >
+                Upload File
+            </button>
+
+        </div>
+
+        <div
+            id="status"
+            class="status"
+        ></div>
+
+    </div>
+
+
+    <!-- File Information -->
+
+    <div
+        class="card"
+        id="fileInfo"
+        style="display:none;"
+    >
+
+        <h2>File Information</h2>
+
+        <div class="info-grid">
+
+            <div class="info-box">
+
+                <small>Filename</small>
+
+                <strong id="filename">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <small>File Type</small>
+
+                <strong id="fileType">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <small>Features</small>
+
+                <strong id="featureCount">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <small>Source CRS</small>
+
+                <strong id="crs">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <small>Projected CRS</small>
+
+                <strong id="projectedCrs">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="info-box">
+
+                <small>Status</small>
+
+                <strong id="processingStatus">
+                    -
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Measurements -->
+
+    <div
+        class="card"
+        id="measurementsCard"
+        style="display:none;"
+    >
+
+        <h2>Measurements</h2>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Feature</th>
+                    <th>Geometry</th>
+                    <th>Area</th>
+                    <th>Perimeter</th>
+                    <th>Length</th>
+                    <th>Unit</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody id="measurementsBody">
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- AI Chatbot Card -->
+
+    <div
+        class="card chatbot-card"
+        id="chatbotCard"
+        style="display:none;"
+    >
+
+        <div class="chat-header">
+            <h2>AEREO AI Assistant</h2>
+            <span class="chat-badge">Ready for Questions</span>
+        </div>
+
+        <div class="chat-chips">
+            <button class="chip" onclick="sendQuickPrompt('Can you explain the terrain of the place?')"> Explain Terrain & Geography</button>
+            <button class="chip" onclick="sendQuickPrompt('Summarize dataset statistics')">Summarize statistics</button>
+            <button class="chip" onclick="sendQuickPrompt('What is the total area of all polygon features?')">Total Area</button>
+            <button class="chip" onclick="sendQuickPrompt('What CRS is used in this file?')">CRS Info</button>
+        </div>
+
+        <div class="chat-history" id="chatHistory">
+            <div class="chat-msg assistant">
+                Hello! I am <strong>GeoSmart AI</strong>. I have loaded and analyzed your dataset's spatial measurements. Ask me any question about your geometries, areas, perimeters, lengths, or CRS!
+            </div>
+        </div>
+
+        <div class="chat-input-bar">
+            <input
+                type="text"
+                id="chatInput"
+                placeholder="Ask GeoSmart AI about your dataset..."
+                onkeypress="handleChatKeyPress(event)"
+            />
+            <button id="chatSendBtn" onclick="sendChatMessage()">Send</button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let currentFileId = null;
+
+
+/* =========================
+   Upload File
+========================= */
+
+async function uploadFile() {
+
+    const input =
+        document.getElementById("fileInput");
+
+    const button =
+        document.getElementById("uploadButton");
+
+    const status =
+        document.getElementById("status");
+
+
+    if (!input.files.length) {
+
+        showStatus(
+            "Please select a file first.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const file = input.files[0];
+
+    const formData = new FormData();
+
+    formData.append(
+        "uploaded_file",
+        file
+    );
+
+
+    button.disabled = true;
+
+
+    showStatus(
+        "Uploading file...",
+        "processing"
+    );
+
+
+    try {
+
+        const response = await fetch(
+            "/api/files/",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+        if (!response.ok) {
+
+            const error =
+                await response.json();
+
+            throw new Error(
+                error.detail ||
+                "Upload failed"
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        currentFileId = data.id;
+
+
+        showFileInfo(data);
+
+
+        showStatus(
+            "File uploaded. Processing...",
+            "processing"
+        );
+
+
+        await waitForProcessing();
+
+    }
+
+    catch (error) {
+
+        showStatus(
+            "Error: " + error.message,
+            "error"
+        );
+
+    }
+
+    finally {
+
+        button.disabled = false;
+
+    }
+
+}
+
+
+/* =========================
+   Wait For Processing
+========================= */
+
+async function waitForProcessing() {
+
+    for (
+        let i = 0;
+        i < 30;
+        i++
+    ) {
+
+        await new Promise(
+            resolve =>
+                setTimeout(resolve, 1000)
+        );
+
+
+        const response = await fetch(
+            `/api/files/${currentFileId}/`
+        );
+
+
+        const data =
+            await response.json();
+
+
+        showFileInfo(data);
+
+
+        if (
+            data.status === "COMPLETED"
+        ) {
+
+            showStatus(
+                "Processing completed successfully.",
+                "success"
+            );
+
+
+            await loadMeasurements();
+
+
+            return;
+        }
+
+
+        if (
+            data.status === "FAILED"
+        ) {
+
+            showStatus(
+                "Processing failed: " +
+                (
+                    data.error_message ||
+                    "Unknown error"
+                ),
+                "error"
+            );
+
+
+            return;
+        }
+
+    }
+
+
+    showStatus(
+        "Processing is taking longer than expected.",
+        "processing"
+    );
+
+}
+
+
+/* =========================
+   Load Measurements
+========================= */
+
+async function loadMeasurements() {
+
+    const response = await fetch(
+        `/api/files/${currentFileId}/measurements/`
+    );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Could not load measurements."
+        );
+    }
+
+
+    const data =
+        await response.json();
+
+
+    const tbody =
+        document.getElementById(
+            "measurementsBody"
+        );
+
+
+    tbody.innerHTML = "";
+
+
+    data.measurements.forEach(
+        feature => {
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+                <td>${feature.feature_id}</td>
+                <td>${feature.geometry_type}</td>
+                <td>${feature.area ?? "-"}</td>
+                <td>${feature.perimeter ?? "-"}</td>
+                <td>${feature.length ?? "-"}</td>
+                <td>${feature.unit ?? "-"}</td>
+                <td>${feature.status}</td>
+            `;
+
+
+            tbody.appendChild(row);
+
+        }
+    );
+
+
+    document.getElementById(
+        "measurementsCard"
+    ).style.display = "block";
+
+    document.getElementById(
+        "chatbotCard"
+    ).style.display = "block";
+
+}
+
+
+/* =========================
+   Chatbot Functions
+========================= */
+
+let sessionId = "session_" + Math.random().toString(36).substring(2, 9);
+
+function copyTextToClipboard(text, btnElement) {
+    if (!navigator.clipboard) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showCopyFeedback(btnElement);
+        return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+        showCopyFeedback(btnElement);
+    }).catch(() => {
+        alert("Could not copy text.");
+    });
+}
+
+function showCopyFeedback(btnElement) {
+    if (!btnElement) return;
+    const oldHtml = btnElement.innerHTML;
+    btnElement.innerHTML = "✓ Copied!";
+    setTimeout(() => {
+        btnElement.innerHTML = oldHtml;
+    }, 1500);
+}
+
+function editUserQuery(text) {
+    const input = document.getElementById("chatInput");
+    input.value = text;
+    input.focus();
+}
+
+function handleChatKeyPress(event) {
+    if (event.key === "Enter") {
+        sendChatMessage();
+    }
+}
+
+function sendQuickPrompt(promptText) {
+    document.getElementById("chatInput").value = promptText;
+    sendChatMessage();
+}
+
+async function sendChatMessage() {
+    const input = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("chatSendBtn");
+    const history = document.getElementById("chatHistory");
+
+    const question = input.value.trim();
+    if (!question || !currentFileId) return;
+
+    // Append User Message with Edit & Copy actions
+    const userMsg = document.createElement("div");
+    userMsg.className = "chat-msg user";
+
+    const userTextNode = document.createElement("div");
+    userTextNode.textContent = question;
+
+    const userActions = document.createElement("div");
+    userActions.className = "msg-actions";
+    
+    const editBtn = document.createElement("button");
+    editBtn.className = "msg-btn";
+    editBtn.innerHTML = "✏️ Edit";
+    editBtn.onclick = () => editUserQuery(question);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "msg-btn";
+    copyBtn.innerHTML = "📋 Copy";
+    copyBtn.onclick = function() { copyTextToClipboard(question, this); };
+
+    userActions.appendChild(editBtn);
+    userActions.appendChild(copyBtn);
+    userMsg.appendChild(userTextNode);
+    userMsg.appendChild(userActions);
+
+    history.appendChild(userMsg);
+
+    input.value = "";
+    input.disabled = true;
+    sendBtn.disabled = true;
+
+    // Append Typing Indicator
+    const typingMsg = document.createElement("div");
+    typingMsg.className = "chat-msg typing";
+    typingMsg.id = "typingIndicator";
+    typingMsg.textContent = "GeoSmart AI is analyzing dataset and drafting response...";
+    history.appendChild(typingMsg);
+    history.scrollTop = history.scrollHeight;
+
+    try {
+        const response = await fetch(`/api/files/${currentFileId}/chat/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                question: question,
+                session_id: sessionId
+            })
+        });
+
+        const typingEl = document.getElementById("typingIndicator");
+        if (typingEl) typingEl.remove();
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.detail || "Failed to get AI response.");
+        }
+
+        const data = await response.json();
+
+        // Append AI Assistant Message with Copy Action
+        const aiMsg = document.createElement("div");
+        aiMsg.className = "chat-msg assistant";
+
+        const aiTextNode = document.createElement("div");
+        aiTextNode.textContent = data.answer;
+
+        const aiActions = document.createElement("div");
+        aiActions.className = "msg-actions";
+
+        const copyAiBtn = document.createElement("button");
+        copyAiBtn.className = "msg-btn";
+        copyAiBtn.innerHTML = "📋 Copy Answer";
+        copyAiBtn.onclick = function() { copyTextToClipboard(data.answer, this); };
+
+        aiActions.appendChild(copyAiBtn);
+        aiMsg.appendChild(aiTextNode);
+        aiMsg.appendChild(aiActions);
+
+        history.appendChild(aiMsg);
+
+    } catch (error) {
+        const typingEl = document.getElementById("typingIndicator");
+        if (typingEl) typingEl.remove();
+
+        const errMsg = document.createElement("div");
+        errMsg.className = "chat-msg assistant";
+        errMsg.style.color = "#dc2626";
+        errMsg.textContent = "Error: " + error.message;
+        history.appendChild(errMsg);
+
+    } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+        history.scrollTop = history.scrollHeight;
+    }
+}
+
+
+/* =========================
+   File Information
+========================= */
+
+function showFileInfo(data) {
+
+    document.getElementById(
+        "fileInfo"
+    ).style.display = "block";
+
+
+    document.getElementById(
+        "filename"
+    ).textContent =
+        data.filename || "-";
+
+
+    document.getElementById(
+        "fileType"
+    ).textContent =
+        data.file_type || "-";
+
+
+    document.getElementById(
+        "featureCount"
+    ).textContent =
+        data.feature_count || 1;
+
+
+    document.getElementById(
+        "crs"
+    ).textContent =
+        data.crs || "-";
+
+
+    document.getElementById(
+        "projectedCrs"
+    ).textContent =
+        data.projected_crs || "-";
+
+
+    document.getElementById(
+        "processingStatus"
+    ).textContent =
+        data.status || "-";
+
+}
+
+
+/* =========================
+   Status Message
+========================= */
+
+function showStatus(
+    message,
+    type
+) {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    status.style.display = "block";
+
+    status.textContent = message;
+
+    status.className =
+        "status " + type;
+
+}
+
+</script>
+
+</body>
+</html>
