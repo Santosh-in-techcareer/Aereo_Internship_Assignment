@@ -518,4 +518,4 @@ uv run locust -f tests/performance/locust.py --headless -u 100 -r 10 -t 1m --hos
 - **📊 Multi-Format Spatial Export:** Provide automated data export options for parsed measurements in GeoJSON, CSV, DXF (AutoCAD), and PDF report formats.
 
 ## IMPORTANT 
-- If you evaluate before 15th october i could not deploy my project in docker and adding redis for reducing bottle neck and caching the data....
+- If you evaluate before 15th october i could not deploy my project in docker and adding redis for reducing bottle neck and caching the data....AS i have 7th sem IAT my exams 
