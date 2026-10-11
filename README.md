@@ -243,55 +243,55 @@ The following mindmap illustrates how the entire AEREO platform functions across
 
 ```mermaid
 mindmap
-  root((AEREO GIS & AI Platform))
+  root((AEREO GIS and AI Platform))
     Frontend Dashboard
       Glassmorphism Dark UI
-      Drag-and-Drop Ingestion (.kml & .zip)
+      Drag and Drop File Ingestion
       Real-Time Status Polling
       Spatial Measurement Tables
       AEREO AI Chat Drawer
     FastAPI Core Backend
       RESTful API Endpoints
-        GET / & GET /health
-        POST /api/files/ (Upload)
-        GET /api/files/{id}/ (Status)
-        GET /api/files/{id}/measurements/
-        POST /api/files/{id}/chat/
+        GET Health Check
+        POST Upload File
+        GET File Status and Details
+        GET Feature Measurements
+        POST AI Chatbot Query
       Async Worker Engine
         FastAPI BackgroundTasks
         Non-blocking File Ingestion
       Database Persistence
         PostgreSQL with Psycopg3
-        SQLAlchemy ORM (Files & Features)
+        SQLAlchemy ORM Models
     GIS Processing Engine
       Multi-Format Ingestion
         KML Google Earth Files
         Shapefile ZIP Archives
-        GeoPandas & C-based PyOGRIO
-      Coordinate Reference Systems (CRS)
-        EPSG:4326 WGS84 Detection
+        GeoPandas and PyOGRIO Engine
+      Coordinate Reference Systems CRS
+        EPSG 4326 WGS84 Detection
         Dynamic UTM Zone Estimation
         Metric Planar Reprojection
-      Spatial Measurement Calculator
-        Polygons: Area (m²) & Perimeter (m)
-        LineStrings: Length (m)
-        Points: Coordinate Pinpointing (WKT)
+      Spatial Measurements
+        Polygons Area and Perimeter
+        LineStrings Metric Length
+        Points WKT Coordinates
     AEREO AI Intelligence Agent
       LangChain Architecture
-      Groq LLM Acceleration (Qwen 3.8 27B)
+      Groq LLM Acceleration
       Spatial Context Injection
       Autonomous Terrain Intelligence
         Shapely Centroid Coordinates
         Nominatim Reverse Geocoding
-        DuckDuckGo Web Search Real-World Terrain
-    Quality Assurance & Performance
-      Locust Load & Stress Testing
+        DuckDuckGo Web Terrain Search
+    Quality Assurance and Performance
+      Locust Load and Stress Testing
         100 Concurrent Users Simulation
-        0% Failures Under Load
+        Zero Failures Under Load
         Sub-15ms Average Latency
       Performance Instrumentation
-        measure_time Stage Profiling
-      Postman Collection & Automated API Guide
+        measure_time Stage Profiler
+      Postman Collection and API Guide
 ```
 
 ---
