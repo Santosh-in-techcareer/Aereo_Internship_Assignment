@@ -5,6 +5,8 @@
 - Learned about the PostGIS extension in PostgreSQL and its role in storing and managing geospatial data.
 - Explored how to calculate the area of geographical features using projections such as Albers Equal Area Conic and other suitable projected coordinate systems.
 - Understood how geospatial data is used in real-world applications such as mapping, location analysis, and geographic information systems.
+- How to test the application using locust and finding the bottle neck in my backend system
+- Automation testing of our software
 
 ## Additional Contributions
 
@@ -12,6 +14,7 @@
 - Designed the workflow so that users can upload a geospatial file once and ask questions about the available data without manually providing the same information for every query.
 - Focused primarily on backend development, including file processing, API development, database integration, coordinate transformation, and AI integration, while keeping the frontend simple and user-friendly.
 - Built and executed automated performance & stress testing using **Locust**, validating sub-15ms average latency and 100% request success (0% error rate) under 100 concurrent users.
+- PLEASE READ THE LAST LINES OF MD AT THE END OF THE PROJECT
 
 # 🌍 AEREO GIS & AI Intelligence Platform
 
@@ -513,3 +516,6 @@ uv run locust -f tests/performance/locust.py --headless -u 100 -r 10 -t 1m --hos
 - **🗄️ Native PostGIS Spatial Queries:** Upgrade spatial storage to native PostGIS geometry columns (`ST_Area`, `ST_Perimeter`, `ST_Buffer`) for complex spatial SQL queries at scale.
 - **🔐 Multi-Tenant Workspace & Auth:** Implement JWT authentication, role-based access control (RBAC), and team project sharing.
 - **📊 Multi-Format Spatial Export:** Provide automated data export options for parsed measurements in GeoJSON, CSV, DXF (AutoCAD), and PDF report formats.
+
+## IMPORTANT 
+- If you evaluate before 15th october i could not deploy my project in docker and adding redis for reducing bottle neck and caching the data....
