@@ -7,6 +7,7 @@
 - Understood how geospatial data is used in real-world applications such as mapping, location analysis, and geographic information systems.
 - How to test the application using locust and finding the bottle neck in my backend system
 - Automation testing of our software
+- Adding map using the js library Leaflet library and today only i learn that these things exist
 
 ## Additional Contributions
 
@@ -14,6 +15,7 @@
 - Designed the workflow so that users can upload a geospatial file once and ask questions about the available data without manually providing the same information for every query.
 - Focused primarily on backend development, including file processing, API development, database integration, coordinate transformation, and AI integration, while keeping the frontend simple and user-friendly.
 - Built and executed automated performance & stress testing using **Locust**, validating sub-15ms average latency and 100% request success (0% error rate) under 100 concurrent users.
+- Adding map to the project 
 - PLEASE READ THE LAST LINES OF MD AT THE END OF THE PROJECT
 
 # 🌍 AEREO GIS & AI Intelligence Platform
