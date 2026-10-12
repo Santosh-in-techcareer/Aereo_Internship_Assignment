@@ -16,7 +16,7 @@
 - Focused primarily on backend development, including file processing, API development, database integration, coordinate transformation, and AI integration, while keeping the frontend simple and user-friendly.
 - Built and executed automated performance & stress testing using **Locust**, validating sub-15ms average latency and 100% request success (0% error rate) under 100 concurrent users.
 - Adding map to the project 
-- PLEASE READ THE LAST LINES OF MD AT THE END OF THE PROJECT
+
 
 # 🌍 AEREO GIS & AI Intelligence Platform
 
@@ -519,5 +519,3 @@ uv run locust -f tests/performance/locust.py --headless -u 100 -r 10 -t 1m --hos
 - **🔐 Multi-Tenant Workspace & Auth:** Implement JWT authentication, role-based access control (RBAC), and team project sharing.
 - **📊 Multi-Format Spatial Export:** Provide automated data export options for parsed measurements in GeoJSON, CSV, DXF (AutoCAD), and PDF report formats.
 
-## IMPORTANT 
-- If you evaluate before 15th october i could not deploy my project in docker and adding redis for reducing bottle neck and caching the data....AS i have 7th sem IAT my exams 

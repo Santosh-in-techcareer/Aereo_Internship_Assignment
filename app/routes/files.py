@@ -1,6 +1,10 @@
+import json
+import os
 import shutil
 import uuid
 from pathlib import Path
+
+import redis
 
 from fastapi import (
     APIRouter,
@@ -47,6 +51,9 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 
 MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 
 def process_in_background(
@@ -193,6 +200,14 @@ def get_measurements(
     file_id: str,
     db: Session = Depends(get_db),
 ):
+    cache_key = f"measurements:{file_id}"
+    try:
+        cached = redis_client.get(cache_key)
+        if cached:
+            return json.loads(cached)
+    except Exception:
+        pass
+
     file_record = (
         db.query(File)
         .filter(File.id == file_id)
@@ -212,7 +227,7 @@ def get_measurements(
         .all()
     )
 
-    return {
+    response_data = {
         "file_id": file_id,
         "filename": file_record.filename,
         "measurements": [
@@ -230,3 +245,10 @@ def get_measurements(
             for feature in features
         ],
     }
+
+    try:
+        redis_client.setex(cache_key, 3600, json.dumps(response_data))
+    except Exception:
+        pass
+
+    return response_data
