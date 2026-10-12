@@ -6,6 +6,9 @@
 
     <title>Geospatial Measurement API</title>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -345,7 +348,7 @@
 
         <div class="upload-area">
 
-            <p>Select a KML file or Shapefile ZIP</p>
+            <p>Select a KML file or Shapefile ZIP (Max: 50 MB)</p>
 
             <input
                 type="file"
@@ -451,6 +454,18 @@
 
         </div>
 
+    </div>
+
+
+    <!-- Interactive Geometry Map -->
+    <div
+        class="card"
+        id="mapCard"
+        style="display:none;"
+    >
+        <h2>Interactive Geometry Map</h2>
+        <p style="color: #6b7280; font-size: 14px; margin-top: 4px; margin-bottom: 12px;">Click a geometry to inspect its measurements.</p>
+        <div id="map" style="height: 420px; width: 100%; border-radius: 8px; border: 1px solid #e5e7eb;"></div>
     </div>
 
 
@@ -561,6 +576,15 @@ async function uploadFile() {
 
 
     const file = input.files[0];
+
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+    if (file.size > MAX_FILE_SIZE) {
+        showStatus(
+            "File size exceeds the 50 MB limit.",
+            "error"
+        );
+        return;
+    }
 
     const formData = new FormData();
 
@@ -779,6 +803,82 @@ async function loadMeasurements() {
         "chatbotCard"
     ).style.display = "block";
 
+    renderMap(data.measurements);
+
+}
+
+
+/* =========================
+   Interactive Map
+========================= */
+
+let mapInstance = null;
+let mapGeoJsonLayer = null;
+
+function renderMap(measurements) {
+    const mapCard = document.getElementById("mapCard");
+    const validFeatures = (measurements || [])
+        .filter(m => m.geojson)
+        .map(m => ({
+            type: "Feature",
+            geometry: m.geojson,
+            properties: {
+                feature_id: m.feature_id,
+                feature_index: m.feature_index,
+                geometry_type: m.geometry_type,
+                area: m.area,
+                perimeter: m.perimeter,
+                length: m.length,
+                unit: m.unit
+            }
+        }));
+
+    if (!validFeatures.length) {
+        mapCard.style.display = "none";
+        return;
+    }
+
+    mapCard.style.display = "block";
+
+    if (!mapInstance) {
+        mapInstance = L.map("map").setView([0, 0], 2);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mapInstance);
+    }
+
+    if (mapGeoJsonLayer) {
+        mapInstance.removeLayer(mapGeoJsonLayer);
+    }
+
+    mapGeoJsonLayer = L.geoJSON({
+        type: "FeatureCollection",
+        features: validFeatures
+    }, {
+        style: {
+            color: "#2563eb",
+            weight: 2,
+            fillColor: "#3b82f6",
+            fillOpacity: 0.4
+        },
+        onEachFeature: (feature, layer) => {
+            const p = feature.properties;
+            let popup = `<strong>Feature ${p.feature_index || p.feature_id}</strong><br>Type: ${p.geometry_type}`;
+            if (p.area != null) popup += `<br>Area: ${p.area} ${p.unit || 'm²'}`;
+            if (p.perimeter != null) popup += `<br>Perimeter: ${p.perimeter} m`;
+            if (p.length != null) popup += `<br>Length: ${p.length} m`;
+            layer.bindPopup(popup);
+        }
+    }).addTo(mapInstance);
+
+    setTimeout(() => {
+        mapInstance.invalidateSize();
+        const bounds = mapGeoJsonLayer.getBounds();
+        if (bounds.isValid()) {
+            mapInstance.fitBounds(bounds, { padding: [30, 30] });
+        }
+    }, 100);
 }
 
 

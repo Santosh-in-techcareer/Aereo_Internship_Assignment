@@ -12,10 +12,28 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
+import pyproj
+import shapely.geometry
+import shapely.ops
+import shapely.wkt
+
 from ..database import SessionLocal, get_db
 from ..models import File, Feature
 from ..schemas import FileResponse
 from ..services.file_process import process_geospatial_file
+
+
+def to_geojson(geometry_wkt: str | None, crs_str: str | None):
+    if not geometry_wkt:
+        return None
+    try:
+        geom = shapely.wkt.loads(geometry_wkt)
+        if crs_str and "4326" not in crs_str:
+            transformer = pyproj.Transformer.from_crs(crs_str, "EPSG:4326", always_xy=True)
+            geom = shapely.ops.transform(transformer.transform, geom)
+        return shapely.geometry.mapping(geom)
+    except Exception:
+        return None
 
 
 router = APIRouter(
@@ -26,6 +44,9 @@ router = APIRouter(
 
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50 MB
 
 
 def process_in_background(
@@ -94,15 +115,28 @@ async def upload_file(
             detail="Only .kml and .zip files are supported.",
         )
 
+    if uploaded_file.size and uploaded_file.size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail="File size exceeds the 50 MB limit.",
+        )
+
     file_id = str(uuid.uuid4())
 
     destination = UPLOAD_DIR / f"{file_id}{extension}"
 
+    total_size = 0
     with destination.open("wb") as buffer:
-        shutil.copyfileobj(
-            uploaded_file.file,
-            buffer,
-        )
+        while chunk := await uploaded_file.read(1024 * 1024):
+            total_size += len(chunk)
+            if total_size > MAX_FILE_SIZE:
+                buffer.close()
+                destination.unlink(missing_ok=True)
+                raise HTTPException(
+                    status_code=400,
+                    detail="File size exceeds the 50 MB limit.",
+                )
+            buffer.write(chunk)
 
     file_type = (
         "KML"
@@ -191,6 +225,7 @@ def get_measurements(
                 "length": feature.length,
                 "unit": feature.measurement_unit,
                 "status": feature.measurement_status,
+                "geojson": to_geojson(feature.geometry_wkt, feature.crs),
             }
             for feature in features
         ],
